@@ -1,0 +1,6 @@
+gpt_index==0.4.24
+openai
+gradio
+PyCryptodome
+PyPDF2
+flask
