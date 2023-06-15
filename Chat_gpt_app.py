@@ -4,7 +4,7 @@ from langchain.chat_models import ChatOpenAI
 import gradio as gr
 import os
 
-os.environ["OPENAI_API_KEY"] = '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'
+os.environ["OPENAI_API_KEY"] = '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'
 
 def construct_index(directory_path):
     max_input_size = 4096

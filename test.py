@@ -6,9 +6,8 @@ import traceback
 
 app = Flask(__name__)
 
-os.environ["OPENAI_API_KEY"] = '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'
+os.environ["OPENAI_API_KEY"] = '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'
 
-# Define the global variables
 index = None
 
 UPLOAD_FOLDER = "C:\\CHAT_GPT_project\\files"
@@ -24,18 +23,16 @@ def construct_index(directory_path):
 
     prompt_helper = PromptHelper(max_input_size, num_outputs, max_chunk_overlap, chunk_size_limit=chunk_size_limit)
 
-    llm_predictor = LLMPredictor(llm=ChatOpenAI(temperature=10, model_name="gpt-3.5-turbo", max_tokens=num_outputs))
+    llm_predictor = LLMPredictor(llm=ChatOpenAI(temperature=0.7, model_name="gpt-3.5-turbo", max_tokens=num_outputs))
 
     documents = SimpleDirectoryReader(directory_path).load_data()
 
     index = GPTSimpleVectorIndex(documents, llm_predictor=llm_predictor, prompt_helper=prompt_helper)
-
     index.save_to_disk(os.path.join(app.config['INDEX_FOLDER'], 'index.json'))
-
-    return index
-
+    index = GPTSimpleVectorIndex.load_from_disk(os.path.join(app.config['INDEX_FOLDER'], 'index.json'), llm_predictor=llm_predictor, prompt_helper=prompt_helper)
+    
 def chatbot(input_text):
-    index = GPTSimpleVectorIndex.load_from_disk('index.json')
+    index = GPTSimpleVectorIndex.load_from_disk(os.path.join(app.config['INDEX_FOLDER'], 'index.json'))
     response = index.query(input_text, response_mode="compact")
     return response.response
 
@@ -44,6 +41,8 @@ def upload_file():
     file = request.files['file']
     file.save(os.path.join(app.config['UPLOAD_FOLDER'], file.filename))
     dir_path = app.config['UPLOAD_FOLDER']
+    
+    global index
     index = construct_index(dir_path)
     return 'File uploaded successfully', 200
 
@@ -64,5 +63,7 @@ def chat():
 if __name__ == '__main__':
     # dir_path = "C:\\CHAT_GPT_project\\files"
     # index = construct_index(dir_path)
+    dir_path = app.config['UPLOAD_FOLDER']
+    index = construct_index(dir_path)
     app.run()
     
